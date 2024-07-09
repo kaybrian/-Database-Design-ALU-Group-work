@@ -1,42 +1,50 @@
 import requests
-import numpy as np
+import pandas as pd
 import joblib
 
-# Step 1: Fetch Data from the API
+# Step 1: Fetch the latest entry data from the API
 def fetch_latest_entry(api_url):
     response = requests.get(api_url)
     if response.status_code == 200:
         data = response.json()
-        latest_entry = data[-1]  # Assuming the latest entry is the last in the list
-        return latest_entry
+        if isinstance(data, list) and len(data) > 0:
+            latest_entry = data[-1]  # Assuming the latest entry is the last in the list
+            return latest_entry
+        else:
+            raise ValueError("Invalid data format received from API")
     else:
-        raise Exception(f"Failed to fetch data: {response.status_code}")
+        raise ConnectionError(f"Failed to fetch data: Status code {response.status_code}")
 
-# Step 2: Prepare Data for Prediction
-def preprocess_data(data):
-    # Example preprocessing steps
-    feature_order = ['feature1', 'feature2', 'feature3']  # Replace with your feature names
-    input_data = np.array([data[feature] for feature in feature_order])
-    input_data = input_data.reshape(1, -1)  # Reshape for a single prediction
-    return input_data
-
-# Step 3: Load the Pre-trained Model
+# Step 2: Load the pre-trained machine learning model
 def load_model(model_path):
     model = joblib.load(model_path)
     return model
 
-# Step 4: Make Predictions
-def make_prediction(model, data):
-    prediction = model.predict(data)
-    return prediction
+# Step 3: Prepare input data for prediction
+def prepare_data_for_prediction(latest_entry):
+    # Convert the latest entry to a DataFrame
+    input_data = pd.DataFrame([latest_entry])
+    # Perform any necessary preprocessing (e.g., scaling, encoding)
+    # Example: if you need to scale features
+    # scaler = joblib.load('scaler.pkl')
+    # input_data_scaled = scaler.transform(input_data)
+    return input_data
 
-# Main script
-api_url = "https://example.com/api/latest"  # Replace with your API endpoint
-model_path = "path/to/your/model.pkl"  # Replace with your model's path
+# Step 4: Make predictions
+def make_predictions(model, input_data):
+    predictions = model.predict(input_data)
+    return predictions
 
-latest_entry = fetch_latest_entry(api_url)
-prepared_data = preprocess_data(latest_entry)
-model = load_model(model_path)
-prediction = make_prediction(model, prepared_data)
+if __name__ == "__main__":
+    api_url = "https://api.yourservice.com/data"  # Replace with your API endpoint
+    model_path = "model.pkl"  # Replace with your model file path
 
-print(f"Prediction: {prediction}")
+    try:
+        latest_entry = fetch_latest_entry(api_url)
+        model = load_model(model_path)
+        input_data = prepare_data_for_prediction(latest_entry)
+        predictions = make_predictions(model, input_data)
+        
+        print("Predictions:", predictions)
+    except Exception as e:
+        print("An error occurred:", str(e))
