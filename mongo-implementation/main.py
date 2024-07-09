@@ -74,3 +74,25 @@ def get_predictions():
         entry['water_quality_id'] = str(entry['water_quality_id'])
     return entries
 
+@app.get('/prediction/{id}', response_model=dict)
+def get_prediction(id: str):
+    entry = db.predictions.find_one({'_id': ObjectId(id)})
+    if entry:
+        entry['_id'] = str(entry['_id'])
+        entry['water_quality_id'] = str(entry['water_quality_id'])
+        return entry
+    else:
+        raise HTTPException(status_code=404, detail="Entry not found")
+
+@app.put('/prediction/{id}', response_model=dict)
+def update_prediction(id: str, entry: Prediction):
+    db.predictions.update_one({'_id': ObjectId(id)}, {'$set': entry.dict()})
+    return {"message": "Prediction updated"}
+
+@app.delete('/prediction/{id}', response_model=dict)
+def delete_prediction(id: str):
+    result = db.predictions.delete_one({'_id': ObjectId(id)})
+    if result.deleted_count > 0:
+        return {"message": "Prediction deleted"}
+    else:
+        raise HTTPException(status_code=404, detail="Entry not found")
