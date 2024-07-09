@@ -1,0 +1,1 @@
+### This implementation provides a RESTful API for managing water quality data and predictions using FastAPI. Data is stored in a MongoDB database

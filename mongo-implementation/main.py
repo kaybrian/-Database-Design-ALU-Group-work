@@ -59,7 +59,7 @@ def delete_water_quality(id: str):
         return {"message": "Water quality entry deleted"}
     else:
         raise HTTPException(status_code=404, detail="Entry not found")
-
+# prediction endpointas
 @app.post('/prediction', response_model=dict)
 def add_prediction(entry: Prediction):
     entry.created_at = datetime.utcnow()
