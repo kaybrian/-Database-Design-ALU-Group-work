@@ -24,7 +24,6 @@ def load_model(model_path):
 def prepare_data_for_prediction(latest_entry):
     # Convert the latest entry to a DataFrame
     input_data = pd.DataFrame([latest_entry])
-    # Perform any necessary preprocessing (e.g., scaling, encoding)
     # Example: if you need to scale features
     # scaler = joblib.load('scaler.pkl')
     # input_data_scaled = scaler.transform(input_data)
@@ -37,7 +36,7 @@ def make_predictions(model, input_data):
 
 if __name__ == "__main__":
     api_url = "https://api.yourservice.com/data"  # Replace with your API endpoint
-    model_path = "model.pkl"  # Replace with your model file path
+    model_path = "C:\Users\Lenovo\Downloads\model.ipynb" 
 
     try:
         latest_entry = fetch_latest_entry(api_url)
