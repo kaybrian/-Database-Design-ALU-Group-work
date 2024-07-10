@@ -1,3 +1,6 @@
+-- create the database to use
+CREATE DATABASE water_quality_db;
+
 -- Create the WaterQuality table
 CREATE TABLE WaterQuality (
     id SERIAL PRIMARY KEY,
