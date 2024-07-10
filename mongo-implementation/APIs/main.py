@@ -1,12 +1,10 @@
+from sys import implementation
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from pymongo import MongoClient
-from bson import ObjectId
 from datetime import datetime
+import database.py
 
 app = FastAPI()
-client = MongoClient('mongodb://localhost:27017/')
-db = client.water_quality_db
 
 class WaterQuality(BaseModel):
     ph: float
@@ -27,72 +25,62 @@ class Prediction(BaseModel):
 
 @app.post('/water_quality', response_model=dict)
 def add_water_quality(entry: WaterQuality):
-    entry.created_at = datetime.utcnow()
-    result = db.water_quality.insert_one(entry.dict())
-    return {"message": "Water quality entry added", "id": str(result.inserted_id)}
+    entry_id = database.add_water_quality(entry.dict())
+    return {"message": "Water quality entry added", "id": entry_id}
 
 @app.get('/water_quality', response_model=list)
 def get_water_quality():
-    entries = list(db.water_quality.find())
-    for entry in entries:
-        entry['_id'] = str(entry['_id'])
+    entries = database.get_water_quality()
     return entries
 
 @app.get('/water_quality/{id}', response_model=dict)
 def get_water_quality_entry(id: str):
-    entry = db.water_quality.find_one({'_id': ObjectId(id)})
+    entry = database.get_water_quality_entry(id)
     if entry:
-        entry['_id'] = str(entry['_id'])
         return entry
     else:
         raise HTTPException(status_code=404, detail="Entry not found")
 
 @app.put('/water_quality/{id}', response_model=dict)
 def update_water_quality(id: str, entry: WaterQuality):
-    db.water_quality.update_one({'_id': ObjectId(id)}, {'$set': entry.dict()})
-    return {"message": "Water quality entry updated"}
+    updated_entry = database.update_water_quality(id, entry.dict())
+    return {"message": "Water quality entry updated", "entry": updated_entry}
 
 @app.delete('/water_quality/{id}', response_model=dict)
 def delete_water_quality(id: str):
-    result = db.water_quality.delete_one({'_id': ObjectId(id)})
-    if result.deleted_count > 0:
+    success = database.delete_water_quality(id)
+    if success:
         return {"message": "Water quality entry deleted"}
     else:
         raise HTTPException(status_code=404, detail="Entry not found")
-# prediction endpointas
+
 @app.post('/prediction', response_model=dict)
 def add_prediction(entry: Prediction):
-    entry.created_at = datetime.utcnow()
-    result = db.predictions.insert_one(entry.dict())
-    return {"message": "Prediction added", "id": str(result.inserted_id)}
+    entry_id = database.add_prediction(entry.dict())
+    return {"message": "Prediction added", "id": entry_id}
 
 @app.get('/prediction', response_model=list)
 def get_predictions():
-    entries = list(db.predictions.find())
-    for entry in entries:
-        entry['_id'] = str(entry['_id'])
-        entry['water_quality_id'] = str(entry['water_quality_id'])
+    entries = database.get_predictions()
     return entries
 
 @app.get('/prediction/{id}', response_model=dict)
 def get_prediction(id: str):
-    entry = db.predictions.find_one({'_id': ObjectId(id)})
+    entry = database.get_prediction(id)
     if entry:
-        entry['_id'] = str(entry['_id'])
-        entry['water_quality_id'] = str(entry['water_quality_id'])
         return entry
     else:
         raise HTTPException(status_code=404, detail="Entry not found")
 
 @app.put('/prediction/{id}', response_model=dict)
 def update_prediction(id: str, entry: Prediction):
-    db.predictions.update_one({'_id': ObjectId(id)}, {'$set': entry.dict()})
-    return {"message": "Prediction updated"}
+    updated_entry = database.update_prediction(id, entry.dict())
+    return {"message": "Prediction updated", "entry": updated_entry}
 
 @app.delete('/prediction/{id}', response_model=dict)
 def delete_prediction(id: str):
-    result = db.predictions.delete_one({'_id': ObjectId(id)})
-    if result.deleted_count > 0:
+    success = database.delete_prediction(id)
+    if success:
         return {"message": "Prediction deleted"}
     else:
         raise HTTPException(status_code=404, detail="Entry not found")
