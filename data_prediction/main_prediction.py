@@ -36,14 +36,14 @@ def make_predictions(model, input_data):
 
 if __name__ == "__main__":
     api_url = "https://api.yourservice.com/data"  # Replace with your API endpoint
-    model_path = "C:\Users\Lenovo\Downloads\model.ipynb" 
+    model_path = "C:\Users\Lenovo\Downloads\model.ipynb"
 
     try:
         latest_entry = fetch_latest_entry(api_url)
         model = load_model(model_path)
-        input_data = prepare_data_for_prediction(latest_entry)
+        input_data = prepare_data_for_prediction(lateages ast_entry)
         predictions = make_predictions(model, input_data)
-        
+
         print("Predictions:", predictions)
     except Exception as e:
         print("An error occurred:", str(e))
