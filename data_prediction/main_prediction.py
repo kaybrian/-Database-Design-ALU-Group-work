@@ -1,6 +1,6 @@
 import requests
 import pandas as pd
-import pickle as pk 
+import pickle as pk
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 
@@ -11,7 +11,7 @@ def fetch_latest_entry(api_url):
     if response.status_code == 200:
         data = response.json()
         if isinstance(data, list) and len(data) > 0:
-            latest_entry = data[0]  
+            latest_entry = data[0]
             return latest_entry
         else:
             raise ValueError("Invalid data format received from API")
@@ -28,7 +28,7 @@ def prepare_data_for_prediction(latest_entry):
 
     # Convert DataFrame to NumPy array
     input_data_array = input_data.to_numpy()
-     
+
     return input_data_array
 
 # Step 4: Make predictions
@@ -44,14 +44,10 @@ def make_predictions(model, input_data):
 
     return prediction
 
-    
-    # predictions = model.predict(input_data)
-    # return predictions
-
 
 
 if __name__ == "__main__":
-    api_url = "http://localhost:8000/water_quality" 
+    api_url = "http://localhost:8000/water_quality"
     model_path = "./water_potability_model.pkl"
 
     # call api to get data  (step 1 )
@@ -60,7 +56,7 @@ if __name__ == "__main__":
     # Opening saved model step 2
     with open(model_path, "rb") as file:
         model = pk.load(file)
-    
+
     # preparing data for prediction step 3
     mod_data = prepare_data_for_prediction(data)
 
@@ -72,7 +68,7 @@ if __name__ == "__main__":
         prediction = "Potable"
     else:
         prediction = "Not Potable"
-     
+
 
 
     print(prediction)
